@@ -19,53 +19,53 @@ module.exports = {
     }*/
     let invoice = {
       "paymentId": "N/A",
-      "fromAccount": { "customerName": "N/A", "accountId": -1 },
-      "toAccount": { "customerName": "N/A", "accountId": -1 },
+      "fromAccount": { "customerName": "N/A", "accountIndex": -1 },
+      "toAccount": { "customerName": "N/A", "accountIndex": -1 },
       "amount": { "amount": 0, "currency": "INR" },
       "status": false,
-      "timestamp":"N/A"
+
     };
     invoice.amount.amount = details.metaData.amount;
     //retrieving fromAccount Details
     var step1 = Credentials
       .findOne({ where: { cardNo: details.credentials.cardNo, cardExpiryMonth: details.credentials.cardExpiryMonth, cardExpiryYear: details.credentials.cardExpiryYear}})
       .then(creItem => {
-        if (!creItem) {return res.status(400).send({message: 'Credentials Not Found'});}
+        if (!creItem) {return res.status(404).send({message: 'Credentials Not Found'});}
         //return res.status(200).send(creItem);
         User
         .findOne({ where: { accountId: creItem.accountId }})
         .then(fromUser=>{
-          if(!fromUser){ return res.status(401).send({message: 'fromUser Not found'});}
-          invoice.fromAccount.accountId = fromUser.accountId;
+          if(!fromUser){ return res.status(404).send({message: 'fromUser Not found'});}
+          invoice.fromAccount.accountIndex = fromUser.id;
           invoice.fromAccount.customerName = fromUser.customerName;
           //return res.status(200).send(fromUser);
         })
-        .catch(error =>{ return res.status(402).send(error)});
+        .catch(error =>{ return res.status(300).send(error)});
       })
-      .catch(error =>{ return res.status(404).send(error)});
+      .catch(error =>{ return res.status(400).send(error)});
 
     //retrieving toAccount Details
     var step2 = step1.then( ()=>{
       User
       .findOne({ where:{ accountId: details.metaData.toAccount, customerName: details.metaData.customerName }})
       .then(toUser =>{
-        if(!toUser){return res.status(405).send({ message: 'toUser Not found'});}
-        invoice.toAccount.accountId = toUser.accountId;
+        if(!toUser){return res.status(404).send({ message: 'toUser Not found'});}
+        invoice.toAccount.accountIndex = toUser.id;
         invoice.toAccount.customerName = toUser.customerName;
         //return res.status(200).send(invoice);
       })
       .then(()=>{
         User
-        .find({where: {accountId: invoice.fromAccount.accountId}})
+        .findById(invoice.fromAccount.accountIndex)
         .then(fromItem => {
-          if (!fromItem) {return res.status(406).send({ message: 'fromItem Not Found'}); }
+          if (!fromItem) {return res.status(404).send({ message: 'fromItem Not Found'}); }
           fromItem
             .update({ balance: (fromItem.balance - invoice.amount.amount)})
             .then(() => {
               User
-              .find({ where: { accountId: invoice.toAccount.accountId}})
+              .findById(invoice.toAccount.accountIndex)
               .then(toItem =>{
-                if (!toItem) {return res.status(407).send({message: 'toItem Not Found' });}
+                if (!toItem) {return res.status(404).send({message: 'toItem Not Found' });}
                 toItem
                   .update({balance: (toItem.balance + invoice.amount.amount) })
                   .then(()=>{
@@ -74,32 +74,31 @@ module.exports = {
                     res.locals.invoice =invoice;
                     next();                     
                   })
-                  .catch((error) => res.status(408).send(error));
+                  .catch((error) => res.status(301).send(error));
               })
-              .catch((error) => res.status(409).send(error));  
+              .catch((error) => res.status(302).send(error));  
             })
-            .catch((error) => res.status(410).send(error));
+            .catch((error) => res.status(303).send(error));
         })
-        .catch((error) => res.status(411).send(error));
+        .catch((error) => res.status(304).send(error));
       })
-      .catch(error => res.status(412).send(error));
+      .catch(error => res.status(400).send(error));
     });
   },
   generateLog(req, res){
     var invoice = res.locals.invoice;
     PaymentLog
        .create({ 
-         fromUser: invoice.fromAccount.accountId,
-         toUser: invoice.toAccount.accountId,
+         fromUser: invoice.fromAccount.accountIndex,
+         toUser: invoice.toAccount.accountIndex,
          amount: invoice.amount.amount,
          status: invoice.status
        })
        .then(txn =>{
          invoice.paymentId = txn.txnId;
-         invoice.timestamp = txn.createdAt;
          return res.status(200).send(invoice);
        })
-       .catch((error) => res.status(413).send(error));
+       .catch((error) => res.status(305).send(error));
   },
   retrieveLog(req, res){
     return PaymentLog.findAll()

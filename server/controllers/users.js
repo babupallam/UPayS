@@ -4,7 +4,7 @@ module.exports = {
   create(req, res) {
     return User
       .create({
-        //accountId: req.body.accountId,
+        accountId: req.body.accountId,
         customerName: req.body.customerName,
         balance: req.body.balance,
         currency: req.body.currency,
@@ -14,7 +14,12 @@ module.exports = {
       .catch(error => res.status(400).send(error));
   },
   list(req, res) {
-    return User.findById(req.params.userId)
+    return User.
+      find({
+        where: {
+          accountId: req.params.userId,
+        }
+      })
       .then(todos => res.status(200).send(todos))
       .catch(error => res.status(400).send(error));
   },
@@ -35,11 +40,11 @@ module.exports = {
   RetrieveBasedOnContraints(req, res) {
     return User
       .find({
-          where: {
-            accountId: req.params.userId,
-            customerName: req.params.cName,
-          }
-        })
+        where: {
+          accountId: req.params.userId,
+          customerName: req.params.cName,
+        }
+      })
       .then(userItem => {
         if (!userItem) {
           return res.status(404).send({
@@ -70,25 +75,25 @@ module.exports = {
   },
   UpdateBasedOnContraints(req, res) {
     return User
-    .find({
-      where: {
-        accountId: req.params.userId,
-        customerName: req.params.cName,
-      }
-    })
-    .then(userItem => {
-      if (!userItem) {
-        return res.status(404).send({
-          message: 'Todo Not Found',
-        });
-      }
-      return userItem
-        .update({
-          customerName: req.body.cname || userItem.customerName,
-        })
-        .then((newUserItem) => res.status(200).send(newUserItem))  // Send back the updated todo.
-        .catch((error) => res.status(400).send(error));
-    })
-    .catch((error) => res.status(400).send(error));
+      .find({
+        where: {
+          accountId: req.params.userId,
+          customerName: req.params.cName,
+        }
+      })
+      .then(userItem => {
+        if (!userItem) {
+          return res.status(404).send({
+            message: 'Todo Not Found',
+          });
+        }
+        return userItem
+          .update({
+            customerName: req.body.cname || userItem.customerName,
+          })
+          .then((newUserItem) => res.status(200).send(newUserItem))  // Send back the updated todo.
+          .catch((error) => res.status(400).send(error));
+      })
+      .catch((error) => res.status(400).send(error));
   }
 };

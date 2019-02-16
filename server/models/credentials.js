@@ -2,7 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
   const Credentials = sequelize.define('Credentials', {
     accountId: {
-      type:DataTypes.UUID
+      type:DataTypes.INTEGER
     },
     cardNo:{
       type: DataTypes.STRING

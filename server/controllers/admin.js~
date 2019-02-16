@@ -66,7 +66,7 @@ module.exports = {
 
         var globalId = '8160000';
         var currentId = globalId;
-        var regDetails =new Array();
+        var regDetails =[];
         retrieveCurrentAcNo =  User
                 .findAll()
                 .then((data) => {

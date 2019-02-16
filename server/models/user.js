@@ -2,8 +2,9 @@
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     accountId: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1 
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
     },
     customerName: DataTypes.STRING,
     balance: DataTypes.FLOAT,

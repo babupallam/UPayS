@@ -28,7 +28,7 @@ module.exports = (app) => {
   app.put('/api/users/:userId', usersController.updateById);//inputs for updating user tuple using uId, Data being updated is 'cname'
   //http://localhost:3001/api/users/0/name/babupallam
   app.put('/api/users/:userId/name/:cName', usersController.UpdateBasedOnContraints);//update based on multiple constraints  
-
+  app.get('/api/list/:userId', usersController.list);
   
   //user credential related functions
   app.post('/api/credentials', credentialController.create);
