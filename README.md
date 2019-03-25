@@ -23,5 +23,9 @@ UPayC: Payment Gateway Demonstration - Server using Angular+Node+Postgres
 	
 	4. I prefer you to use Postman API, to get familiar with the server, else turn on the server and go, work, and feel different views.
 	 
+5.
+
+
 Now Our Server is On. Put this together with upay:server application.
+
 

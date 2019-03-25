@@ -47,7 +47,7 @@ module.exports = {
     //retrieving toAccount Details
     var step2 = step1.then( ()=>{
       User
-      .findOne({ where:{ accountId: details.metaData.toAccount, customerName: details.metaData.customerName }})
+      .findOne({ where:{ accountId: details.metaData.toAccount, customerName: details.metaData.accountHolderName }})
       .then(toUser =>{
         if(!toUser){return res.status(405).send({ message: 'toUser Not found'});}
         invoice.toAccount.accountId = toUser.accountId;
